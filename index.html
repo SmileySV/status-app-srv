@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>AXAPTA | Статус середовищ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --ios-bg: #dcd8e0;
+            --ios-card: #f5f3f7;
+            --ios-text: #1c1c1e;
+            --ios-muted: #6e6e73;
+            --ios-accent: #007aff;
+            --ios-green: #34c759;
+            --ios-orange: #ff9500;
+            --ios-border: #d1d1d6;
+        }
+
+        body {
+            background-color: var(--ios-bg);
+            color: var(--ios-text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            padding: 40px 15px;
+            letter-spacing: -0.01em;
+        }
+
+        .container { max-width: 900px; }
+
+        .soft-card {
+            background: var(--ios-card);
+            border-radius: 24px;
+            border: none;
+            padding: 32px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header-logo {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--ios-muted);
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        .table {
+            --bs-table-bg: transparent;
+            margin-bottom: 0;
+        }
+
+        thead th {
+            color: var(--ios-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: none;
+            border: none !important;
+            padding: 12px 16px !important;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--ios-border);
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+
+        td {
+            padding: 16px !important;
+            border: none !important;
+            vertical-align: middle;
+        }
+
+        /* М'яке підсвічування Latest */
+        .latest {
+            background-color: rgba(10, 132, 255, 0.15) !important;
+            transform: scale(1.01);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(10, 132, 255, 0.2);
+            border-bottom: none !important;
+        }
+
+        /* Округлення кутів для підсвіченого рядка */
+        .latest td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        .latest td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+        .ip, .date {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-size: 0.9rem;
+            color: #1c1c1e;
+            font-weight: 400;
+        }
+
+        .badge-soft {
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-ok { background-color: rgba(52, 199, 89, 0.15); color: #248a3d; }
+        .status-clean { background-color: rgba(90, 200, 250, 0.15); color: #0891b2; }
+        .status-warn { background-color: rgba(255, 149, 0, 0.15); color: #c97500; }
+
+        .app-name { font-weight: 600; }
+
+        i.bi-diagram-3-fill { color: var(--ios-accent); font-size: 1.8rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="soft-card">
+        <div class="header">
+            <div class="header-left">
+                <h1>AXAPTA — статус тестових середовищ</h1>
+                <p class="subtitle">Актуальність баз даних та наявність кастомних розробок</p>
+            </div>
+            <svg class="header-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#0078d4;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#00bcf2;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect x="10" y="10" width="35" height="35" fill="url(#grad1)" rx="3"/>
+                <rect x="55" y="10" width="35" height="35" fill="url(#grad1)" rx="3" opacity="0.8"/>
+                <rect x="10" y="55" width="35" height="35" fill="url(#grad1)" rx="3" opacity="0.8"/>
+                <rect x="55" y="55" width="35" height="35" fill="url(#grad1)" rx="3" opacity="0.6"/>
+            </svg>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>IP терміналу</th>
+                    <th>APP сервер</th>
+                    <th>Дата БД</th>
+                    <th>Розробки</th>
+                    <th>Статус</th>
+                </tr>
+                </thead>
+                <tbody id="data-body">
+                    <tr>
+                        <td class="ip">172.25.1.45</td>
+                        <td class="app-name">DB1</td>
+                        <td class="date">16.06.2021</td>
+                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
+                        <td><span class="badge-soft status-ok">Online</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ip">172.25.1.45</td>
+                        <td class="app-name">DB2</td>
+                        <td class="date">24.09.2024</td>
+                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
+                        <td><span class="badge-soft status-ok">Online</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ip">172.25.1.45</td>
+                        <td class="app-name">OD_DB3</td>
+                        <td class="date">27.11.2025</td>
+                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
+                        <td><span class="badge-soft status-ok">Online</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ip">172.25.1.45</td>
+                        <td class="app-name">OD_DB4</td>
+                        <td class="date">08.01.2026</td>
+                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
+                        <td><span class="badge-soft status-ok">Online</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ip">172.25.1.45</td>
+                        <td class="app-name">DB5</td>
+                        <td class="date">14.01.2025</td>
+                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
+                        <td><span class="badge-soft status-ok">Online</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ip">10.67.2.60</td>
+                        <td class="app-name">ZTERP</td>
+                        <td class="date">03.07.2025</td>
+                        <td><span class="badge-soft status-clean">Чистий</span></td>
+                        <td><span class="badge-soft status-ok">Online</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ip">10.67.2.60</td>
+                        <td class="app-name">ZTERP-SAS</td>
+                        <td class="date">28.01.2019</td>
+                        <td><span class="badge-soft status-clean">Чистий</span></td>
+                        <td><span class="badge-soft status-ok">Online</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ip">10.67.2.60</td>
+                        <td class="app-name">ZTERP-OLD</td>
+                        <td class="date">20.07.2017</td>
+                        <td><span class="badge-soft status-clean">Чистий</span></td>
+                        <td><span class="badge-soft status-ok">Online</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function parseDate(str) {
+            const parts = str.split('.');
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+
+        const rows = document.querySelectorAll('#data-body tr');
+        let newestDate = null;
+        let newestRow = null;
+
+        rows.forEach(row => {
+            const dateCell = row.querySelector('.date');
+            if (dateCell) {
+                const d = parseDate(dateCell.innerText.trim());
+                if (!newestDate || d > newestDate) {
+                    newestDate = d;
+                    newestRow = row;
+                }
+            }
+        });
+
+        if (newestRow) {
+            newestRow.classList.add('latest');
+        }
+    });
+</script>
+
+</body>
+</html>
