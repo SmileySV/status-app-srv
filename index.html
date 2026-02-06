@@ -23,6 +23,7 @@
             --ios-muted: #6e6e73;
             --ios-accent: #007aff;
             --ios-green: #34c759;
+            --ios-pink: #ff2d55; /* Додано рожевий */
             --ios-orange: #ff9500;
             --ios-border: #d1d1d6;
         }
@@ -52,69 +53,33 @@
             margin-bottom: 30px;
         }
 
-        .header-left { flex: 1; }
+        .header-logo { width: 80px; height: 80px; flex-shrink: 0; }
 
-        .header-logo {
-            width: 80px;
-            height: 80px;
-            flex-shrink: 0;
-        }
+        h1 { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
 
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
+        .subtitle { color: var(--ios-muted); font-size: 0.95rem; margin-bottom: 0; }
 
-        .subtitle {
-            color: var(--ios-muted);
-            font-size: 0.95rem;
-            margin-bottom: 0;
-        }
-
-        .table {
-            --bs-table-bg: transparent;
-            margin-bottom: 0;
-        }
+        .table { --bs-table-bg: transparent; margin-bottom: 0; }
 
         thead th {
             color: var(--ios-muted);
             font-size: 0.8rem;
             font-weight: 600;
-            text-transform: none;
             border: none !important;
             padding: 12px 16px !important;
         }
 
-        tbody tr {
-            border-bottom: 1px solid var(--ios-border);
-            transition: all 0.2s ease;
-        }
-
+        tbody tr { border-bottom: 1px solid var(--ios-border); transition: all 0.3s ease; }
         tbody tr:last-child { border-bottom: none; }
 
-        td {
-            padding: 16px !important;
-            border: none !important;
-            vertical-align: middle;
-        }
+        td { padding: 16px !important; border: none !important; vertical-align: middle; }
 
-        /* Підсвітка найсвіжішої бази */
         .latest {
             background-color: rgba(10, 132, 255, 0.12) !important;
-            transform: scale(1.005);
             border-radius: 12px;
-            border-bottom: none !important;
         }
 
-        .ip, .date {
-            font-size: 0.9rem;
-            color: #1c1c1e;
-            font-weight: 400;
-        }
+        .ip, .date { font-size: 0.9rem; color: #1c1c1e; }
 
         .badge-soft {
             padding: 6px 12px;
@@ -126,11 +91,23 @@
             gap: 4px;
         }
 
+        /* Стилі статусів */
         .status-ok { background-color: rgba(52, 199, 89, 0.15); color: #248a3d; }
+        .status-updating { background-color: rgba(255, 45, 85, 0.15); color: #d61b44; } /* Рожевий фон */
         .status-clean { background-color: rgba(90, 200, 250, 0.15); color: #0891b2; }
         .status-warn { background-color: rgba(255, 149, 0, 0.15); color: #c97500; }
 
         .app-name { font-weight: 600; }
+
+        /* Анімація для статусу оновлення */
+        .pulse {
+            animation: pulse-animation 2s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -140,7 +117,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>AXAPTA — статус тестових середовищ</h1>
-                <p class="subtitle">Актуальність баз даних та наявність кастомних розробок</p>
+                <p class="subtitle">Актуальність баз даних та статус розробок</p>
             </div>
             <svg class="header-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -168,68 +145,90 @@
                     </tr>
                 </thead>
                 <tbody id="data-body">
-                    </tbody>
+                    <tr><td colspan="5" class="text-center p-4 text-muted">Завантаження...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Функція для перетворення дати DD.MM.YYYY в об'єкт Date
-        function parseDate(str) {
-            if (!str) return new Date(0);
-            const parts = str.split('.');
-            return new Date(parts[2], parts[1] - 1, parts[0]);
-        }
+    // Функція для перетворення дати DD.MM.YYYY в об'єкт Date
+    function parseDate(str) {
+        if (!str) return new Date(0);
+        const parts = str.split('.');
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
 
-        // Завантаження даних з JSON
-        fetch('data.json')
+    function loadData() {
+        // Додаємо timestamp, щоб обійти кеш браузера
+        fetch('data.json?nocache=' + new Date().getTime())
             .then(response => {
-                if (!response.ok) throw new Error('Файл data.json не знайдено');
+                if (!response.ok) throw new Error('Файл не знайдено');
                 return response.json();
             })
             .then(data => {
-                const tableBody = document.getElementById('data-body');
-                let newestDate = null;
-                let newestRowRef = null;
-
-                data.forEach((item) => {
-                    const row = document.createElement('tr');
-                    
-                    // Визначаємо стиль для колонки "Розробки"
-                    const devBadge = item.dev 
-                        ? '<span class="badge-soft status-warn">⚠️ Є</span>' 
-                        : '<span class="badge-soft status-clean">Чистий</span>';
-
-                    row.innerHTML = `
-                        <td class="ip">${item.ip}</td>
-                        <td class="app-name">${item.name}</td>
-                        <td class="date">${item.date}</td>
-                        <td>${devBadge}</td>
-                        <td><span class="badge-soft status-ok">${item.status}</span></td>
-                    `;
-
-                    tableBody.appendChild(row);
-
-                    // Логіка пошуку найсвіжішої дати для підсвітки
-                    const currentDate = parseDate(item.date);
-                    if (!newestDate || currentDate > newestDate) {
-                        newestDate = currentDate;
-                        newestRowRef = row;
-                    }
-                });
-
-                // Додаємо клас .latest до найсвіжішого рядка
-                if (newestRowRef) {
-                    newestRowRef.classList.add('latest');
-                }
+                renderTable(data);
             })
             .catch(error => {
                 console.error('Помилка:', error);
-                document.getElementById('data-body').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Помилка завантаження даних: ${error.message}</td></tr>`;
+                document.getElementById('data-body').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Помилка оновлення даних</td></tr>`;
             });
-    });
+    }
+
+    function renderTable(data) {
+        const tableBody = document.getElementById('data-body');
+        tableBody.innerHTML = '';
+        
+        let newestDate = null;
+        let rows = [];
+
+        data.forEach((item) => {
+            const row = document.createElement('tr');
+            
+            // Логіка розробок
+            const devBadge = item.dev 
+                ? '<span class="badge-soft status-warn">⚠️ Є</span>' 
+                : '<span class="badge-soft status-clean">Чистий</span>';
+
+            // Логіка статусу (Оновлений рожевий колір)
+            let statusBadge = '';
+            if (item.status === 'Updating') {
+                statusBadge = '<span class="badge-soft status-updating pulse"><i class="bi bi-arrow-repeat"></i> Updating</span>';
+            } else {
+                statusBadge = '<span class="badge-soft status-ok">✅ Online</span>';
+            }
+
+            row.innerHTML = `
+                <td class="ip">${item.ip}</td>
+                <td class="app-name">${item.name}</td>
+                <td class="date">${item.date}</td>
+                <td>${devBadge}</td>
+                <td>${statusBadge}</td>
+            `;
+
+            tableBody.appendChild(row);
+            
+            const currentDate = parseDate(item.date);
+            rows.push({date: currentDate, element: row});
+            if (!newestDate || currentDate > newestDate) {
+                newestDate = currentDate;
+            }
+        });
+
+        // Підсвітка найсвіжішої бази
+        rows.forEach(r => {
+            if (newestDate && r.date.getTime() === newestDate.getTime()) {
+                r.element.classList.add('latest');
+            }
+        });
+    }
+
+    // Перший запуск
+    document.addEventListener('DOMContentLoaded', loadData);
+
+    // Автоматичне оновлення кожні 30 секунд
+    setInterval(loadData, 30000);
 </script>
 
 </body>
