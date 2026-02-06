@@ -5,9 +5,10 @@ WORKDIR /app
 # Копіюємо ліби
 COPY libs /app/libs
 
-# Встановлюємо, додавши pydantic явно
-RUN pip install --no-index --find-links=/app/libs fastapi uvicorn python-multipart pydantic
+# Встановлюємо ВСЕ, що лежить у папці libs
+RUN pip install --no-index --find-links=/app/libs /app/libs/*.whl
 
+# Копіюємо код
 COPY . .
 
 EXPOSE 8000
