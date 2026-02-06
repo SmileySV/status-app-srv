@@ -1,10 +1,58 @@
 [
-    { "ip": "172.25.1.45", "name": "DB1", "date": "16.06.2021", "dev": true, "status": "Online" },
-    { "ip": "172.25.1.45", "name": "DB2", "date": "24.09.2024", "dev": true, "status": "Online" },
-    { "ip": "172.25.1.45", "name": "OD_DB3", "date": "27.11.2025", "dev": true, "status": "Online" },
-    { "ip": "172.25.1.45", "name": "OD_DB4", "date": "08.01.2026", "dev": true, "status": "Online" },
-    { "ip": "172.25.1.45", "name": "DB5", "date": "26.01.2026", "dev": true, "status": "Online" },
-    { "ip": "10.67.2.60", "name": "ZTERP", "date": "03.07.2025", "dev": false, "status": "Online" },
-    { "ip": "10.67.2.60", "name": "ZTERP-SAS", "date": "28.01.2019", "dev": false, "status": "Online" },
-    { "ip": "10.67.2.60", "name": "ZTERP-OLD", "date": "20.07.2017", "dev": false, "status": "Online" }
+    {
+        "ip": "172.25.1.45",
+        "name": "DB1",
+        "date": "16.06.2021",
+        "dev": true,
+        "status": "Online"
+    },
+    {
+        "ip": "172.25.1.45",
+        "name": "DB2",
+        "date": "24.09.2024",
+        "dev": true,
+        "status": "Online"
+    },
+    {
+        "ip": "172.25.1.45",
+        "name": "OD_DB3",
+        "date": "27.11.2025",
+        "dev": false,
+        "status": "Online"
+    },
+    {
+        "ip": "172.25.1.45",
+        "name": "OD_DB4",
+        "date": "08.01.2026",
+        "dev": true,
+        "status": "Online"
+    },
+    {
+        "ip": "172.25.1.45",
+        "name": "DB5",
+        "date": "26.01.2026",
+        "dev": true,
+        "status": "Online"
+    },
+    {
+        "ip": "10.67.2.60",
+        "name": "ZTERP",
+        "date": "03.07.2025",
+        "dev": false,
+        "status": "Online"
+    },
+    {
+        "ip": "10.67.2.60",
+        "name": "ZTERP-SAS",
+        "date": "28.01.2019",
+        "dev": false,
+        "status": "Online"
+    },
+    {
+        "ip": "10.67.2.60",
+        "name": "ZTERP-OLD",
+        "date": "20.07.2017",
+        "dev": false,
+        "status": "Online"
+    }
 ]
