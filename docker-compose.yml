@@ -8,7 +8,7 @@ services:
     ports:
       - "8088:8000"
     volumes:
-      # Монтуємо файл. Якщо на хості немає /opt/sas, Docker створить її автоматично.
-      - /opt/sas/data.json:/app/data.json
+      # Монтуємо папку /opt/sas в папку /app/data всередині контейнера
+      - /opt/sas:/app/data
     environment:
       - PYTHONUNBUFFERED=1

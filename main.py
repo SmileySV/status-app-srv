@@ -11,7 +11,8 @@ app = FastAPI()
 
 # Визначаємо шлях до поточної папки
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_FILE = os.path.join(BASE_DIR, "data.json")
+#DATA_FILE = os.path.join(BASE_DIR, "data.json")
+DATA_FILE = os.path.join(os.getcwd(), "data", "data.json")
 
 class ServerStatus(BaseModel):
     ip: str

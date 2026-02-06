@@ -1,22 +1,20 @@
 #!/bin/sh
 
-# Шлях до файлу, який примонтований через Volume
-DATA_FILE="/app/data.json"
-# Шлях до шаблону, який ми зашили в образ
+# Шлях всередині контейнера до змонтованої папки
+DATA_DIR="/app/data"
+DATA_FILE="$DATA_DIR/data.json"
 TEMPLATE_FILE="/app/data_template.json"
 
-echo ">>> Checking data file..."
+echo ">>> Checking data directory and file..."
 
-# Якщо файл не існує або має розмір 0 (Docker часто створює порожній файл при монтуванні)
+# Створюємо файл, якщо його немає в папці
 if [ ! -s "$DATA_FILE" ]; then
-    echo ">>> Data file is empty or missing. Initializing from template..."
+    echo ">>> Initializing data.json from template..."
     cp "$TEMPLATE_FILE" "$DATA_FILE"
-    # Даємо права, щоб Python міг писати в нього
     chmod 666 "$DATA_FILE"
 else
-    echo ">>> Data file found and not empty. Skipping initialization."
+    echo ">>> Data file exists and is not empty."
 fi
 
-# Запускаємо основний процес (Python сервер)
-echo ">>> Starting FastAPI..."
+# Запускаємо Python
 exec python main.py
