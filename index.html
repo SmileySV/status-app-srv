@@ -52,9 +52,7 @@
             margin-bottom: 30px;
         }
 
-        .header-left {
-            flex: 1;
-        }
+        .header-left { flex: 1; }
 
         .header-logo {
             width: 80px;
@@ -104,19 +102,15 @@
             vertical-align: middle;
         }
 
+        /* Підсвітка найсвіжішої бази */
         .latest {
-            background-color: rgba(10, 132, 255, 0.15) !important;
-            transform: scale(1.01);
+            background-color: rgba(10, 132, 255, 0.12) !important;
+            transform: scale(1.005);
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(10, 132, 255, 0.2);
             border-bottom: none !important;
         }
 
-        .latest td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        .latest td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-
         .ip, .date {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
             font-size: 0.9rem;
             color: #1c1c1e;
             font-weight: 400;
@@ -137,8 +131,6 @@
         .status-warn { background-color: rgba(255, 149, 0, 0.15); color: #c97500; }
 
         .app-name { font-weight: 600; }
-
-        i.bi-diagram-3-fill { color: var(--ios-accent); font-size: 1.8rem; }
     </style>
 </head>
 <body>
@@ -167,72 +159,16 @@
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
-                <tr>
-                    <th>IP терміналу</th>
-                    <th>APP сервер</th>
-                    <th>Дата БД</th>
-                    <th>Розробки</th>
-                    <th>Статус</th>
-                </tr>
+                    <tr>
+                        <th>IP терміналу</th>
+                        <th>APP сервер</th>
+                        <th>Дата БД</th>
+                        <th>Розробки</th>
+                        <th>Статус</th>
+                    </tr>
                 </thead>
                 <tbody id="data-body">
-                    <tr>
-                        <td class="ip">172.25.1.45</td>
-                        <td class="app-name">DB1</td>
-                        <td class="date">16.06.2021</td>
-                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
-                        <td><span class="badge-soft status-ok">Online</span></td>
-                    </tr>
-                    <tr>
-                        <td class="ip">172.25.1.45</td>
-                        <td class="app-name">DB2</td>
-                        <td class="date">24.09.2024</td>
-                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
-                        <td><span class="badge-soft status-ok">Online</span></td>
-                    </tr>
-                    <tr>
-                        <td class="ip">172.25.1.45</td>
-                        <td class="app-name">OD_DB3</td>
-                        <td class="date">27.11.2025</td>
-                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
-                        <td><span class="badge-soft status-ok">Online</span></td>
-                    </tr>
-                    <tr>
-                        <td class="ip">172.25.1.45</td>
-                        <td class="app-name">OD_DB4</td>
-                        <td class="date">08.01.2026</td>
-                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
-                        <td><span class="badge-soft status-ok">Online</span></td>
-                    </tr>
-                    <tr>
-                        <td class="ip">172.25.1.45</td>
-                        <td class="app-name">DB5</td>
-                        <td class="date">26.01.2026</td>
-                        <td><span class="badge-soft status-warn">⚠️ Є</span></td>
-                        <td><span class="badge-soft status-ok">Online</span></td>
-                    </tr>
-                    <tr>
-                        <td class="ip">10.67.2.60</td>
-                        <td class="app-name">ZTERP</td>
-                        <td class="date">03.07.2025</td>
-                        <td><span class="badge-soft status-clean">Чистий</span></td>
-                        <td><span class="badge-soft status-ok">Online</span></td>
-                    </tr>
-                    <tr>
-                        <td class="ip">10.67.2.60</td>
-                        <td class="app-name">ZTERP-SAS</td>
-                        <td class="date">28.01.2019</td>
-                        <td><span class="badge-soft status-clean">Чистий</span></td>
-                        <td><span class="badge-soft status-ok">Online</span></td>
-                    </tr>
-                    <tr>
-                        <td class="ip">10.67.2.60</td>
-                        <td class="app-name">ZTERP-OLD</td>
-                        <td class="date">20.07.2017</td>
-                        <td><span class="badge-soft status-clean">Чистий</span></td>
-                        <td><span class="badge-soft status-ok">Online</span></td>
-                    </tr>
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </div>
@@ -240,29 +176,59 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Функція для перетворення дати DD.MM.YYYY в об'єкт Date
         function parseDate(str) {
+            if (!str) return new Date(0);
             const parts = str.split('.');
             return new Date(parts[2], parts[1] - 1, parts[0]);
         }
 
-        const rows = document.querySelectorAll('#data-body tr');
-        let newestDate = null;
-        let newestRow = null;
+        // Завантаження даних з JSON
+        fetch('data.json')
+            .then(response => {
+                if (!response.ok) throw new Error('Файл data.json не знайдено');
+                return response.json();
+            })
+            .then(data => {
+                const tableBody = document.getElementById('data-body');
+                let newestDate = null;
+                let newestRowRef = null;
 
-        rows.forEach(row => {
-            const dateCell = row.querySelector('.date');
-            if (dateCell) {
-                const d = parseDate(dateCell.innerText.trim());
-                if (!newestDate || d > newestDate) {
-                    newestDate = d;
-                    newestRow = row;
+                data.forEach((item) => {
+                    const row = document.createElement('tr');
+                    
+                    // Визначаємо стиль для колонки "Розробки"
+                    const devBadge = item.dev 
+                        ? '<span class="badge-soft status-warn">⚠️ Є</span>' 
+                        : '<span class="badge-soft status-clean">Чистий</span>';
+
+                    row.innerHTML = `
+                        <td class="ip">${item.ip}</td>
+                        <td class="app-name">${item.name}</td>
+                        <td class="date">${item.date}</td>
+                        <td>${devBadge}</td>
+                        <td><span class="badge-soft status-ok">${item.status}</span></td>
+                    `;
+
+                    tableBody.appendChild(row);
+
+                    // Логіка пошуку найсвіжішої дати для підсвітки
+                    const currentDate = parseDate(item.date);
+                    if (!newestDate || currentDate > newestDate) {
+                        newestDate = currentDate;
+                        newestRowRef = row;
+                    }
+                });
+
+                // Додаємо клас .latest до найсвіжішого рядка
+                if (newestRowRef) {
+                    newestRowRef.classList.add('latest');
                 }
-            }
-        });
-
-        if (newestRow) {
-            newestRow.classList.add('latest');
-        }
+            })
+            .catch(error => {
+                console.error('Помилка:', error);
+                document.getElementById('data-body').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Помилка завантаження даних: ${error.message}</td></tr>`;
+            });
     });
 </script>
 
