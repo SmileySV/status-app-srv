@@ -24,13 +24,14 @@
             --ios-accent: #007aff;
             --ios-green: #34c759;
             --ios-orange: #ff9500;
+            --ios-pink: #ff2d55;
             --ios-border: #d1d1d6;
         }
 
         body {
             background-color: var(--ios-bg);
             color: var(--ios-text);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             padding: 40px 15px;
             letter-spacing: -0.01em;
         }
@@ -40,81 +41,22 @@
         .soft-card {
             background: var(--ios-card);
             border-radius: 24px;
-            border: none;
             padding: 32px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 30px;
-        }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
 
-        .header-left { flex: 1; }
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+        .subtitle { color: var(--ios-muted); font-size: 0.95rem; }
 
-        .header-logo {
-            width: 80px;
-            height: 80px;
-            flex-shrink: 0;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            color: var(--ios-muted);
-            font-size: 0.95rem;
-            margin-bottom: 0;
-        }
-
-        .table {
-            --bs-table-bg: transparent;
-            margin-bottom: 0;
-        }
-
-        thead th {
-            color: var(--ios-muted);
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: none;
-            border: none !important;
-            padding: 12px 16px !important;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid var(--ios-border);
-            transition: all 0.2s ease;
-        }
-
+        .table { --bs-table-bg: transparent; margin-bottom: 0; }
+        thead th { color: var(--ios-muted); font-size: 0.8rem; font-weight: 600; border: none !important; padding: 12px 16px !important; }
+        tbody tr { border-bottom: 1px solid var(--ios-border); transition: all 0.2s ease; }
         tbody tr:last-child { border-bottom: none; }
+        td { padding: 16px !important; border: none !important; vertical-align: middle; }
 
-        td {
-            padding: 16px !important;
-            border: none !important;
-            vertical-align: middle;
-        }
-
-        /* Підсвітка найсвіжішої бази */
-        .latest {
-            background-color: rgba(10, 132, 255, 0.12) !important;
-            transform: scale(1.005);
-            border-radius: 12px;
-            border-bottom: none !important;
-        }
-
-        .ip, .date {
-            font-size: 0.9rem;
-            color: #1c1c1e;
-            font-weight: 400;
-        }
+        .latest { background-color: rgba(10, 132, 255, 0.12) !important; border-radius: 12px; }
 
         .badge-soft {
             padding: 6px 12px;
@@ -123,14 +65,20 @@
             font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
 
         .status-ok { background-color: rgba(52, 199, 89, 0.15); color: #248a3d; }
-        .status-clean { background-color: rgba(90, 200, 250, 0.15); color: #0891b2; }
         .status-warn { background-color: rgba(255, 149, 0, 0.15); color: #c97500; }
+        .status-clean { background-color: rgba(90, 200, 250, 0.15); color: #0891b2; }
+        .status-updating { background-color: rgba(255, 45, 85, 0.15); color: var(--ios-pink); }
+
+        /* Анімація шестерні */
+        .spin { animation: rotation 2s infinite linear; display: inline-block; }
+        @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(359deg); } }
 
         .app-name { font-weight: 600; }
+        .header-logo { width: 80px; height: 80px; }
     </style>
 </head>
 <body>
@@ -138,21 +86,15 @@
 <div class="container">
     <div class="soft-card">
         <div class="header">
-            <div class="header-left">
+            <div>
                 <h1>AXAPTA — статус тестових середовищ</h1>
                 <p class="subtitle">Актуальність баз даних та наявність кастомних розробок</p>
             </div>
             <svg class="header-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#0078d4;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#00bcf2;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <rect x="10" y="10" width="35" height="35" fill="url(#grad1)" rx="3"/>
-                <rect x="55" y="10" width="35" height="35" fill="url(#grad1)" rx="3" opacity="0.8"/>
-                <rect x="10" y="55" width="35" height="35" fill="url(#grad1)" rx="3" opacity="0.8"/>
-                <rect x="55" y="55" width="35" height="35" fill="url(#grad1)" rx="3" opacity="0.6"/>
+                <rect x="10" y="10" width="35" height="35" fill="#0078d4" rx="3"/>
+                <rect x="55" y="10" width="35" height="35" fill="#0078d4" rx="3" opacity="0.8"/>
+                <rect x="10" y="55" width="35" height="35" fill="#0078d4" rx="3" opacity="0.8"/>
+                <rect x="55" y="55" width="35" height="35" fill="#0078d4" rx="3" opacity="0.6"/>
             </svg>
         </div>
 
@@ -167,8 +109,7 @@
                         <th>Статус</th>
                     </tr>
                 </thead>
-                <tbody id="data-body">
-                    </tbody>
+                <tbody id="data-body"></tbody>
             </table>
         </div>
     </div>
@@ -176,61 +117,48 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Функція для перетворення дати DD.MM.YYYY в об'єкт Date
         function parseDate(str) {
-            if (!str) return new Date(0);
             const parts = str.split('.');
             return new Date(parts[2], parts[1] - 1, parts[0]);
         }
 
-        // Завантаження даних з JSON
         fetch('data.json')
-            .then(response => {
-                if (!response.ok) throw new Error('Файл data.json не знайдено');
-                return response.json();
-            })
+            .then(res => res.json())
             .then(data => {
-                const tableBody = document.getElementById('data-body');
+                const body = document.getElementById('data-body');
                 let newestDate = null;
-                let newestRowRef = null;
+                let newestRow = null;
 
-                data.forEach((item) => {
+                data.forEach(item => {
                     const row = document.createElement('tr');
                     
-                    // Визначаємо стиль для колонки "Розробки"
                     const devBadge = item.dev 
                         ? '<span class="badge-soft status-warn">⚠️ Є</span>' 
                         : '<span class="badge-soft status-clean">Чистий</span>';
+
+                    const isUpdating = item.status === 'Updating';
+                    const statusClass = isUpdating ? 'status-updating' : 'status-ok';
+                    const statusIcon = isUpdating ? '<i class="bi bi-gear-fill spin"></i> ' : '';
 
                     row.innerHTML = `
                         <td class="ip">${item.ip}</td>
                         <td class="app-name">${item.name}</td>
                         <td class="date">${item.date}</td>
                         <td>${devBadge}</td>
-                        <td><span class="badge-soft status-ok">${item.status}</span></td>
+                        <td><span class="badge-soft ${statusClass}">${statusIcon}${item.status}</span></td>
                     `;
 
-                    tableBody.appendChild(row);
+                    body.appendChild(row);
 
-                    // Логіка пошуку найсвіжішої дати для підсвітки
-                    const currentDate = parseDate(item.date);
-                    if (!newestDate || currentDate > newestDate) {
-                        newestDate = currentDate;
-                        newestRowRef = row;
+                    const d = parseDate(item.date);
+                    if (!newestDate || d > newestDate) {
+                        newestDate = d;
+                        newestRow = row;
                     }
                 });
-
-                // Додаємо клас .latest до найсвіжішого рядка
-                if (newestRowRef) {
-                    newestRowRef.classList.add('latest');
-                }
-            })
-            .catch(error => {
-                console.error('Помилка:', error);
-                document.getElementById('data-body').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Помилка завантаження даних: ${error.message}</td></tr>`;
+                if (newestRow) newestRow.classList.add('latest');
             });
     });
 </script>
-
 </body>
 </html>
