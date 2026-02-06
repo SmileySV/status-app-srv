@@ -4,100 +4,33 @@
     <meta charset="UTF-8">
     <title>AXAPTA | Статус середовищ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-    <link rel="shortcut icon" href="images/favicon.ico">
-    <link rel="manifest" href="images/site.webmanifest">
-    <meta name="theme-color" content="#dcd8e0">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
     <style>
         :root {
-            --ios-bg: #dcd8e0;
-            --ios-card: #f5f3f7;
-            --ios-text: #1c1c1e;
-            --ios-muted: #6e6e73;
-            --ios-accent: #007aff;
-            --ios-green: #34c759;
-            --ios-orange: #ff9500;
-            --ios-pink: #ff2d55;
-            --ios-border: #d1d1d6;
+            --ios-bg: #dcd8e0; --ios-card: #f5f3f7; --ios-text: #1c1c1e;
+            --ios-muted: #6e6e73; --ios-accent: #007aff; --ios-pink: #ff2d55;
         }
-
-        body {
-            background-color: var(--ios-bg);
-            color: var(--ios-text);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-            padding: 40px 15px;
-            letter-spacing: -0.01em;
-        }
-
-        .container { max-width: 900px; }
-
-        .soft-card {
-            background: var(--ios-card);
-            border-radius: 24px;
-            padding: 32px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        }
-
-        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-
-        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-        .subtitle { color: var(--ios-muted); font-size: 0.95rem; }
-
-        .table { --bs-table-bg: transparent; margin-bottom: 0; }
-        thead th { color: var(--ios-muted); font-size: 0.8rem; font-weight: 600; border: none !important; padding: 12px 16px !important; }
-        tbody tr { border-bottom: 1px solid var(--ios-border); transition: all 0.2s ease; }
-        tbody tr:last-child { border-bottom: none; }
-        td { padding: 16px !important; border: none !important; vertical-align: middle; }
-
+        body { background-color: var(--ios-bg); color: var(--ios-text); font-family: -apple-system, sans-serif; padding: 40px 15px; }
+        .soft-card { background: var(--ios-card); border-radius: 24px; padding: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+        .table { --bs-table-bg: transparent; }
         .latest { background-color: rgba(10, 132, 255, 0.12) !important; border-radius: 12px; }
-
-        .badge-soft {
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
+        .badge-soft { padding: 6px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .status-ok { background-color: rgba(52, 199, 89, 0.15); color: #248a3d; }
         .status-warn { background-color: rgba(255, 149, 0, 0.15); color: #c97500; }
         .status-clean { background-color: rgba(90, 200, 250, 0.15); color: #0891b2; }
         .status-updating { background-color: rgba(255, 45, 85, 0.15); color: var(--ios-pink); }
-
-        /* Анімація шестерні */
         .spin { animation: rotation 2s infinite linear; display: inline-block; }
         @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(359deg); } }
-
-        .app-name { font-weight: 600; }
-        .header-logo { width: 80px; height: 80px; }
     </style>
 </head>
 <body>
-
-<div class="container">
+<div class="container" style="max-width: 900px;">
     <div class="soft-card">
-        <div class="header">
-            <div>
-                <h1>AXAPTA — статус тестових середовищ</h1>
-                <p class="subtitle">Актуальність баз даних та наявність кастомних розробок</p>
-            </div>
-            <svg class="header-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <rect x="10" y="10" width="35" height="35" fill="#0078d4" rx="3"/>
-                <rect x="55" y="10" width="35" height="35" fill="#0078d4" rx="3" opacity="0.8"/>
-                <rect x="10" y="55" width="35" height="35" fill="#0078d4" rx="3" opacity="0.8"/>
-                <rect x="55" y="55" width="35" height="35" fill="#0078d4" rx="3" opacity="0.6"/>
-            </svg>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>AXAPTA — статус середовищ</h1>
+            <a href="setStatus.html" class="btn btn-sm btn-outline-secondary">⚙️ Адмінка</a>
         </div>
-
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
@@ -114,50 +47,29 @@
         </div>
     </div>
 </div>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        function parseDate(str) {
-            const parts = str.split('.');
-            return new Date(parts[2], parts[1] - 1, parts[0]);
-        }
+    fetch('data.json').then(res => res.json()).then(data => {
+        const body = document.getElementById('data-body');
+        let newestDate = null; let newestRow = null;
 
-        fetch('data.json')
-            .then(res => res.json())
-            .then(data => {
-                const body = document.getElementById('data-body');
-                let newestDate = null;
-                let newestRow = null;
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            const isUpdating = item.status === 'Updating';
+            
+            row.innerHTML = `
+                <td>${item.ip}</td>
+                <td class="fw-bold">${item.name}</td>
+                <td>${item.date}</td>
+                <td><span class="badge-soft ${item.dev ? 'status-warn' : 'status-clean'}">${item.dev ? '⚠️ Є' : 'Чистий'}</span></td>
+                <td><span class="badge-soft ${isUpdating ? 'status-updating' : 'status-ok'}">${isUpdating ? '<i class="bi bi-gear-fill spin"></i> Updating' : 'Online'}</span></td>
+            `;
+            body.appendChild(row);
 
-                data.forEach(item => {
-                    const row = document.createElement('tr');
-                    
-                    const devBadge = item.dev 
-                        ? '<span class="badge-soft status-warn">⚠️ Є</span>' 
-                        : '<span class="badge-soft status-clean">Чистий</span>';
-
-                    const isUpdating = item.status === 'Updating';
-                    const statusClass = isUpdating ? 'status-updating' : 'status-ok';
-                    const statusIcon = isUpdating ? '<i class="bi bi-gear-fill spin"></i> ' : '';
-
-                    row.innerHTML = `
-                        <td class="ip">${item.ip}</td>
-                        <td class="app-name">${item.name}</td>
-                        <td class="date">${item.date}</td>
-                        <td>${devBadge}</td>
-                        <td><span class="badge-soft ${statusClass}">${statusIcon}${item.status}</span></td>
-                    `;
-
-                    body.appendChild(row);
-
-                    const d = parseDate(item.date);
-                    if (!newestDate || d > newestDate) {
-                        newestDate = d;
-                        newestRow = row;
-                    }
-                });
-                if (newestRow) newestRow.classList.add('latest');
-            });
+            const p = item.date.split('.');
+            const d = new Date(p[2], p[1]-1, p[0]);
+            if (!newestDate || d > newestDate) { newestDate = d; newestRow = row; }
+        });
+        if (newestRow) newestRow.classList.add('latest');
     });
 </script>
 </body>
