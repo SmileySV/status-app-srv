@@ -17,7 +17,7 @@
         "ip": "172.25.1.45",
         "name": "OD_DB3",
         "date": "27.11.2025",
-        "dev": true,
+        "dev": false,
         "status": "Online"
     },
     {
@@ -25,7 +25,7 @@
         "name": "OD_DB4",
         "date": "08.01.2026",
         "dev": true,
-        "status": "Updating"
+        "status": "Online"
     },
     {
         "ip": "172.25.1.45",

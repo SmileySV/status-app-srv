@@ -2,64 +2,232 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Адмінка</title>
+    <title>Адмінка | Налаштування статусів</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
-        body { background: #dcd8e0; padding: 40px 15px; font-family: sans-serif; }
-        .card-ios { background: #f5f3f7; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .server-line { display: grid; grid-template-columns: 1fr 1fr 0.5fr 0.8fr; gap: 15px; align-items: center; padding: 10px 0; border-bottom: 1px solid #d1d1d6; }
-        .json-box { background: #1c1c1e; color: #acffac; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 0.8rem; }
-        .switch-upd:checked { background-color: #ff2d55; border-color: #ff2d55; }
+        :root {
+            --ios-bg: #f2f2f7;
+            --ios-card: #ffffff;
+            --ios-text: #1c1c1e;
+            --ios-accent: #007aff;
+            --ios-border: #d1d1d6;
+            --ios-muted: #6e6e73;
+        }
+
+        body {
+            background-color: var(--ios-bg);
+            color: var(--ios-text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 30px 15px;
+        }
+
+        .admin-card {
+            background: var(--ios-card);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        h2 { font-weight: 700; font-size: 1.4rem; margin-bottom: 20px; }
+
+        .server-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--ios-border);
+        }
+
+        .server-item:last-child { border-bottom: none; }
+
+        .date-input {
+            border: 1px solid var(--ios-border);
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            outline: none;
+            background: #f9f9fb;
+            color: var(--ios-text);
+        }
+
+        .form-check-input:checked {
+            background-color: #34c759;
+            border-color: #34c759;
+        }
+
+        .json-preview {
+            background: #1c1c1e;
+            color: #acffac;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.85rem;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .hint { font-size: 0.85rem; color: var(--ios-muted); margin-top: 10px; }
+        .dev-label { font-size: 0.75rem; color: var(--ios-muted); margin-bottom: 4px; display: block; font-weight: 600; }
+        
+        .copy-success-msg {
+            color: #34c759;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: none;
+        }
     </style>
 </head>
 <body>
-<div class="container" style="max-width: 900px;">
-    <div class="card-ios">
-        <div class="d-flex justify-content-between mb-4">
+
+<div class="container" style="max-width: 850px;">
+    <div class="admin-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="m-0">⚙️ Керування середовищами</h2>
-            <a href="index.html" class="btn btn-sm btn-secondary">🔙 Назад</a>
+            <a href="index.html" class="btn btn-sm btn-light rounded-pill px-3">🔙 На головну</a>
         </div>
-        <div id="list"></div>
+        <div id="controls-list">
+            <div class="text-center py-4">Завантаження даних...</div>
+        </div>
     </div>
-    <div class="card-ios">
-        <div class="d-flex justify-content-between mb-2">
-            <h5 class="m-0">📄 JSON (Скопіюй у data.json)</h5>
-            <button class="btn btn-sm btn-primary" onclick="copy()">Копіювати все</button>
+
+    <div class="admin-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="m-0">📄 Новий JSON код</h2>
+            <div class="d-flex align-items-center gap-3">
+                <span id="copy-msg" class="copy-success-msg">Скопійовано!</span>
+                <button class="btn btn-sm btn-primary rounded-pill px-4" onclick="copyJson()">Скопіювати все</button>
+            </div>
         </div>
-        <pre id="output" class="json-box"></pre>
+        <div class="position-relative">
+            <pre class="json-preview" id="json-output"></pre>
+        </div>
+        <div class="mt-4">
+            <p class="hint">
+                <strong>Інструкція:</strong><br>
+                1. Виберіть нову дату або перемкніть статус розробки.<br>
+                2. Натисніть <b>"Скопіювати все"</b>.<br>
+                3. Вставте код у файл <b>data.json</b> у VS Code.<br>
+                4. Запустіть скрипт <code>./deploy.sh</code> у терміналі.
+            </p>
+        </div>
     </div>
 </div>
 
 <script>
-    let data = [];
-    fetch('data.json').then(r => r.json()).then(d => { data = d; render(); });
+    let currentData = [];
 
-    function render() {
-        const cont = document.getElementById('list');
-        cont.innerHTML = '';
-        data.forEach((s, i) => {
-            const div = document.createElement('div');
-            div.className = 'server-line';
-            div.innerHTML = `
-                <div><b>${s.name}</b><br><small>${s.ip}</small></div>
-                <div><input type="text" class="form-control form-control-sm" value="${s.date}" onchange="data[${i}].date=this.value; update()"></div>
-                <div class="text-center"><input class="form-check-input" type="checkbox" ${s.dev?'checked':''} onchange="data[${i}].dev=!data[${i}].dev; update()"></div>
-                <div class="text-center"><input class="form-check-input switch-upd" type="checkbox" ${s.status==='Updating'?'checked':''} onchange="data[${i}].status=(data[${i}].status==='Online'?'Updating':'Online'); render(); update()">
-                <br><small class="${s.status==='Updating'?'text-danger':'text-success'}">${s.status}</small></div>
-            `;
-            cont.appendChild(div);
+    // Конвертація DD.MM.YYYY -> YYYY-MM-DD (для календаря)
+    function formatToInputDate(dotDate) {
+        if (!dotDate) return '';
+        const parts = dotDate.split('.');
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+
+    // Конвертація YYYY-MM-DD -> DD.MM.YYYY (для JSON)
+    function formatToDotDate(dashDate) {
+        if (!dashDate) return '';
+        const parts = dashDate.split('-');
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+
+    // 1. Завантаження даних
+    fetch('data.json')
+        .then(r => {
+            if (!r.ok) throw new Error('data.json не знайдено');
+            return r.json();
+        })
+        .then(data => {
+            currentData = data;
+            renderControls();
+            updateOutput();
+        })
+        .catch(err => {
+            document.getElementById('controls-list').innerHTML = `<div class="text-danger">Помилка: ${err.message}</div>`;
         });
-        update();
+
+    // 2. Рендер списку серверів
+    function renderControls() {
+        const list = document.getElementById('controls-list');
+        list.innerHTML = '';
+        currentData.forEach((server, index) => {
+            const div = document.createElement('div');
+            div.className = 'server-item';
+            div.innerHTML = `
+                <div>
+                    <div class="fw-bold" style="font-size: 1.1rem;">${server.name}</div>
+                    <div class="text-muted small">${server.ip}</div>
+                </div>
+                <div>
+                    <span class="dev-label">ДАТА БАЗИ (ДД.ММ.РРРР):</span>
+                    <input type="date" class="date-input" 
+                        lang="uk-UA"
+                        value="${formatToInputDate(server.date)}" 
+                        onchange="updateDate(${index}, this.value)">
+                </div>
+                <div class="text-center">
+                    <span class="dev-label">РОЗРОБКА:</span>
+                    <div class="form-check form-switch d-inline-block">
+                        <input class="form-check-input" type="checkbox" role="switch" 
+                            style="width: 2.5em; height: 1.25em; cursor: pointer;"
+                            ${server.dev ? 'checked' : ''} 
+                            onchange="toggleDev(${index})">
+                    </div>
+                </div>
+            `;
+            list.appendChild(div);
+        });
     }
 
-    function update() { document.getElementById('output').textContent = JSON.stringify(data, null, 4); }
-
-    function copy() {
-        const ta = document.createElement("textarea");
-        ta.value = document.getElementById('output').textContent;
-        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-        document.body.removeChild(ta); alert('Скопійовано!');
+    // 3. Обробники подій
+    function toggleDev(index) {
+        currentData[index].dev = !currentData[index].dev;
+        updateOutput();
     }
+
+    function updateDate(index, newValue) {
+        if(newValue) {
+            currentData[index].date = formatToDotDate(newValue);
+            updateOutput();
+        }
+    }
+
+    // 4. Оновлення вікна з кодом
+    function updateOutput() {
+        document.getElementById('json-output').textContent = JSON.stringify(currentData, null, 4);
+    }
+
+    // 5. Копіювання
+    function copyJson() {
+    const text = document.getElementById('json-output').textContent;
+    
+    // Створюємо тимчасовий елемент для копіювання
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    
+    try {
+        // Використовуємо старий надійний метод
+        document.execCommand('copy');
+        
+        // Показуємо напис "Скопійовано"
+        const msg = document.getElementById('copy-msg');
+        msg.style.display = 'inline';
+        setTimeout(() => { msg.style.display = 'none'; }, 2000);
+    } catch (err) {
+        console.error('Не вдалося скопіювати:', err);
+        alert('Помилка копіювання. Спробуйте виділити текст мишкою та натиснути Ctrl+C');
+    }
+    
+    document.body.removeChild(textArea);
+}
 </script>
+
 </body>
 </html>
