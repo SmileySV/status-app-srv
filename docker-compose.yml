@@ -1,9 +1,13 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  web:
-    build: .
-    container_name: status-app-srv
+  status-app:
+    image: smileysv/status-app-srv:latest
+    container_name: status-srv
+    restart: always
     ports:
       - "8088:8000"
-    restart: unless-stopped
+    volumes:
+      - /opt/sas/data.json:/app/data.json
+    environment:
+      - PYTHONUNBUFFERED=1

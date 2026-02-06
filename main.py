@@ -1,13 +1,15 @@
+import json
+import os
+from typing import List
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import List
-import json
 import uvicorn
 
-app = FastAPI()
+# Створюємо додаток
+app = FastAPI(title="AXAPTA Status API")
 
-# Модель даних для перевірки
+# Описуємо структуру даних, які приходять з адмінки
 class ServerStatus(BaseModel):
     ip: str
     name: str
@@ -15,19 +17,49 @@ class ServerStatus(BaseModel):
     dev: bool
     status: str
 
-# Ендпоінт для збереження даних
+# Шлях до файлу даних
+DATA_FILE = "data.json"
+
 @app.post("/api/save")
 async def save_data(data: List[ServerStatus]):
+    """
+    Приймає масив серверів з адмінки та зберігає їх у data.json.
+    Файл data.json примонтований через Docker Volumes до /opt/sas/data.json
+    """
     try:
-        with open("data.json", "w", encoding="utf-8") as f:
-            # Перетворюємо об'єкти назад у список словників і зберігаємо
-            json.dump([item.dict() for item in data], f, ensure_ascii=False, indent=4)
-        return {"status": "success", "message": "Дані збережено"}
+        # Перетворюємо масив моделей Pydantic у список словників
+        json_data = [item.dict() for item in data]
+        
+        # Записуємо у файл
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(json_data, f, ensure_ascii=False, indent=4)
+        
+        print(f"✅ Дані успішно оновлено. Отримано записів: {len(json_data)}")
+        return {"status": "success", "message": "Дані збережено на сервері"}
+    
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"❌ Помилка при збереженні: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Помилка сервера: {str(e)}")
 
-# Роздача статичних файлів (твій фронтенд)
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
+# --- Роздача фронтенду ---
+
+# 1. Спеціальний маршрут для головної сторінки
+@app.get("/")
+async def read_index():
+    from fastapi.responses import FileResponse
+    return FileResponse("index.html")
+
+# 2. Спеціальний маршрут для адмінки
+@app.get("/setStatus.html")
+async def read_admin():
+    from fastapi.responses import FileResponse
+    return FileResponse("setStatus.html")
+
+# 3. Підключення всіх інших статичних файлів (картинки, json, стилі)
+# Важливо: StaticFiles мають бути останніми в списку маршрутів
+app.mount("/", StaticFiles(directory="."), name="static")
 
 if __name__ == "__main__":
+    print("🚀 Запуск сервера AXAPTA Status на порту 8000...")
+    # host 0.0.0.0 обов'язковий для роботи всередині Docker
     uvicorn.run(app, host="0.0.0.0", port=8000)

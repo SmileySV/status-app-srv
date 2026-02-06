@@ -39,7 +39,6 @@
 
         h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; }
 
-        /* Рядок сервера */
         .server-item {
             display: grid;
             grid-template-columns: 1.5fr 1fr 0.8fr 1fr;
@@ -53,15 +52,11 @@
             transition: all 0.2s ease;
         }
 
-        .server-item:hover {
-            background: #ffffff;
-            border-color: var(--ios-accent);
-        }
+        .server-item:hover { background: #ffffff; border-color: var(--ios-accent); }
 
         .app-name { font-weight: 600; font-size: 1.05rem; }
         .ip-label { font-size: 0.85rem; color: var(--ios-muted); }
 
-        /* Поле вводу дати */
         .date-input {
             border: 1px solid var(--ios-border);
             border-radius: 10px;
@@ -70,10 +65,7 @@
             width: 100%;
             outline: none;
             background: #fff;
-            transition: border-color 0.2s;
         }
-
-        .date-input:focus { border-color: var(--ios-accent); }
 
         .label-mini {
             font-size: 0.65rem;
@@ -84,37 +76,25 @@
             display: block;
         }
 
-        /* Перемикачі */
         .form-check-input { width: 2.4em; height: 1.2em; cursor: pointer; }
         .form-check-input:checked { background-color: var(--ios-green); border-color: var(--ios-green); }
         .switch-updating:checked { background-color: var(--ios-pink); border-color: var(--ios-pink); }
-
-        /* Вікно JSON */
-        .json-preview {
-            background: #1c1c1e;
-            color: #acffac;
-            padding: 20px;
-            border-radius: 18px;
-            font-family: 'SFMono-Regular', Consolas, monospace;
-            font-size: 0.85rem;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #333;
-        }
 
         .btn-ios {
             background: var(--ios-accent);
             color: white;
             border-radius: 12px;
-            padding: 10px 24px;
+            padding: 12px 28px;
             font-weight: 600;
             border: none;
             transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
         }
 
         .btn-ios:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-ios:disabled { background: var(--ios-muted); opacity: 0.6; transform: none; }
         
-        #copy-msg { font-weight: 600; color: var(--ios-green); display: none; }
+        #status-msg { font-weight: 600; color: var(--ios-green); display: none; }
     </style>
 </head>
 <body>
@@ -122,26 +102,21 @@
 <div class="container">
     <div class="soft-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="m-0"><i class="bi bi-sliders"></i> Керування базою</h2>
-            <a href="index.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3">🔙 На головну</a>
+            <h2 class="m-0"><i class="bi bi-sliders"></i> Керування середовищами</h2>
+            <a href="index.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3">🔙 На сайт</a>
         </div>
         
         <div id="controls-list">
-            <div class="text-center p-5 text-muted">Завантаження даних...</div>
+            <div class="text-center p-5 text-muted">Завантаження...</div>
         </div>
-    </div>
 
-    <div class="soft-card">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="m-0" style="font-size: 1.2rem;"><i class="bi bi-filetype-json"></i> Згенерований JSON</h2>
-            <div class="d-flex align-items-center gap-3">
-                <span id="copy-msg">Скопійовано!</span>
-                <button class="btn-ios" onclick="copyJson()">Зберегти зміни</button>
+        <div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between">
+            <div>
+                <span id="status-msg">Збережено! ✅</span>
             </div>
-        </div>
-        <pre class="json-preview" id="json-output"></pre>
-        <div class="mt-3 small text-muted">
-            <i class="bi bi-info-circle"></i> Після копіювання вставте текст у файл <b>data.json</b> та виконайте <b>./deploy.sh</b>
+            <button class="btn-ios" onclick="saveToServer()" id="save-btn">
+                <i class="bi bi-cloud-arrow-up-fill me-2"></i> Зберегти зміни
+            </button>
         </div>
     </div>
 </div>
@@ -149,15 +124,12 @@
 <script>
     let servers = [];
 
-    // Завантаження даних
+    // Завантаження актуальних даних
     fetch('data.json')
         .then(r => r.json())
         .then(data => {
             servers = data;
             renderUI();
-        })
-        .catch(e => {
-            document.getElementById('controls-list').innerHTML = `<div class="text-danger">Помилка завантаження data.json</div>`;
         });
 
     function renderUI() {
@@ -175,13 +147,13 @@
                 <div>
                     <span class="label-mini">Дата бази</span>
                     <input type="text" class="date-input" value="${s.date}" 
-                        oninput="servers[${i}].date=this.value; updatePreview()">
+                        oninput="servers[${i}].date=this.value">
                 </div>
                 <div class="text-center">
                     <span class="label-mini">Розробка</span>
                     <div class="form-check form-switch d-inline-block">
                         <input class="form-check-input" type="checkbox" ${s.dev ? 'checked' : ''} 
-                            onchange="servers[${i}].dev=this.checked; updatePreview()">
+                            onchange="servers[${i}].dev=this.checked">
                     </div>
                 </div>
                 <div class="text-center">
@@ -198,48 +170,41 @@
             `;
             list.appendChild(div);
         });
-        updatePreview();
     }
 
     function toggleStatus(i) {
         servers[i].status = servers[i].status === 'Online' ? 'Updating' : 'Online';
-        renderUI(); // Перемальовуємо для оновлення кольору тексту
+        renderUI();
     }
 
-    function updatePreview() {
-        document.getElementById('json-output').textContent = JSON.stringify(servers, null, 4);
-    }
+    async function saveToServer() {
+        const btn = document.getElementById('save-btn');
+        const msg = document.getElementById('status-msg');
+        
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Зберігаю...`;
 
-    // Заміни функцію copyJson на цю:
-async function saveToServer() {
-    const btn = document.querySelector('.btn-ios');
-    const msg = document.getElementById('copy-msg');
-    
-    btn.disabled = true;
-    btn.textContent = "Зберігаю...";
+        try {
+            const response = await fetch('/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(servers)
+            });
 
-    try {
-        const response = await fetch('/api/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(servers)
-        });
-
-        if (response.ok) {
-            msg.textContent = "Збережено на сервері! ✅";
-            msg.style.display = 'inline';
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
-        } else {
-            alert('Помилка при збереженні');
+            if (response.ok) {
+                msg.style.display = 'inline';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            } else {
+                alert('Помилка сервера при збереженні');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Не вдалося зв’язатися з бекендом');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="bi bi-cloud-arrow-up-fill me-2"></i> Зберегти зміни`;
         }
-    } catch (err) {
-        console.error(err);
-        alert('Сервер бекенду не відповідає');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "Зберегти зміни";
     }
-}
 </script>
 
 </body>

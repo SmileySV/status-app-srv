@@ -1,11 +1,15 @@
 FROM python:3.10-slim
 
+# Щоб логи відразу виводилися в консоль
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Спробуємо оновити pip і встановити бібліотеки з довшим таймаутом
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --default-timeout=100 fastapi uvicorn python-multipart
+# Офлайн встановлення ліб
+COPY libs /app/libs
+RUN pip install --no-index --find-links=/app/libs fastapi uvicorn python-multipart
 
+# Копіюємо проєкт
 COPY . .
 
 EXPOSE 8000
