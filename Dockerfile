@@ -1,15 +1,15 @@
-# Вихідний образ — легкий Nginx
-FROM nginx:alpine
+FROM python:3.10-slim
 
-# Видаляємо дефолтну сторінку nginx
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-# Копіюємо ВСІ файли з поточної папки (index, setStatus, data.json, images)
-# Це набагато зручніше, ніж прописувати кожен файл окремо
-COPY . /usr/share/nginx/html/
+# Встановлюємо необхідні бібліотеки
+RUN pip install --no-cache-dir fastapi uvicorn
 
-# Виставляємо порт
-EXPOSE 80
+# Копіюємо всі файли проекту
+COPY . .
 
-# Запускаємо nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Відкриваємо порт
+EXPOSE 8000
+
+# Запускаємо сервер
+CMD ["python", "main.py"]
