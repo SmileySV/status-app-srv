@@ -14,12 +14,13 @@
             --ios-text: #1c1c1e;
             --ios-accent: #007aff;
             --ios-border: #d1d1d6;
+            --ios-muted: #6e6e73;
         }
 
         body {
             background-color: var(--ios-bg);
             color: var(--ios-text);
-            font-family: -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             padding: 30px 15px;
         }
 
@@ -37,7 +38,7 @@
             display: grid;
             grid-template-columns: 1fr auto auto;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
             padding: 15px 0;
             border-bottom: 1px solid var(--ios-border);
         }
@@ -46,10 +47,12 @@
 
         .date-input {
             border: 1px solid var(--ios-border);
-            border-radius: 8px;
-            padding: 4px 8px;
+            border-radius: 10px;
+            padding: 6px 12px;
             font-size: 0.9rem;
             outline: none;
+            background: #f9f9fb;
+            color: var(--ios-text);
         }
 
         .form-check-input:checked {
@@ -62,37 +65,56 @@
             color: #acffac;
             padding: 15px;
             border-radius: 12px;
-            font-family: 'Courier New', monospace;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
             font-size: 0.85rem;
             max-height: 400px;
             overflow-y: auto;
             position: relative;
         }
 
-        .hint { font-size: 0.85rem; color: #6e6e73; margin-top: 10px; }
-        .dev-label { font-size: 0.75rem; color: var(--ios-muted); margin-bottom: 2px; display: block; }
+        .hint { font-size: 0.85rem; color: var(--ios-muted); margin-top: 10px; }
+        .dev-label { font-size: 0.75rem; color: var(--ios-muted); margin-bottom: 4px; display: block; font-weight: 600; }
+        
+        .copy-success-msg {
+            color: #34c759;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
 <div class="container" style="max-width: 850px;">
     <div class="admin-card">
-        <h2>⚙️ Керування середовищами</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="m-0">⚙️ Керування середовищами</h2>
+            <a href="index.html" class="btn btn-sm btn-light rounded-pill px-3">🔙 На головну</a>
+        </div>
         <div id="controls-list">
-            </div>
+            <div class="text-center py-4">Завантаження даних...</div>
+        </div>
     </div>
 
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="m-0">📄 Новий JSON код</h2>
-            <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="copyJson()">Скопіювати все</button>
+            <div class="d-flex align-items-center gap-3">
+                <span id="copy-msg" class="copy-success-msg">Скопійовано!</span>
+                <button class="btn btn-sm btn-primary rounded-pill px-4" onclick="copyJson()">Скопіювати все</button>
+            </div>
         </div>
         <div class="position-relative">
             <pre class="json-preview" id="json-output"></pre>
         </div>
-        <div class="mt-4 d-flex justify-content-between align-items-center">
-            <a href="index.html" class="btn btn-light rounded-pill px-4">🔙 На головну</a>
-            <p class="hint m-0">Вставте код у <b>data.json</b> та запустіть <code>./deploy.sh</code></p>
+        <div class="mt-4">
+            <p class="hint">
+                <strong>Інструкція:</strong><br>
+                1. Виберіть нову дату або перемкніть статус розробки.<br>
+                2. Натисніть <b>"Скопіювати все"</b>.<br>
+                3. Вставте код у файл <b>data.json</b> у VS Code.<br>
+                4. Запустіть скрипт <code>./deploy.sh</code> у терміналі.
+            </p>
         </div>
     </div>
 </div>
@@ -100,28 +122,36 @@
 <script>
     let currentData = [];
 
-    // Функція для конвертації дати з DD.MM.YYYY у YYYY-MM-DD (для input type="date")
+    // Конвертація DD.MM.YYYY -> YYYY-MM-DD (для календаря)
     function formatToInputDate(dotDate) {
+        if (!dotDate) return '';
         const parts = dotDate.split('.');
         return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
 
-    // Функція для конвертації дати з YYYY-MM-DD у DD.MM.YYYY (для JSON)
+    // Конвертація YYYY-MM-DD -> DD.MM.YYYY (для JSON)
     function formatToDotDate(dashDate) {
+        if (!dashDate) return '';
         const parts = dashDate.split('-');
         return `${parts[2]}.${parts[1]}.${parts[0]}`;
     }
 
-    // 1. Завантажуємо поточні дані
+    // 1. Завантаження даних
     fetch('data.json')
-        .then(r => r.json())
+        .then(r => {
+            if (!r.ok) throw new Error('data.json не знайдено');
+            return r.json();
+        })
         .then(data => {
             currentData = data;
             renderControls();
             updateOutput();
+        })
+        .catch(err => {
+            document.getElementById('controls-list').innerHTML = `<div class="text-danger">Помилка: ${err.message}</div>`;
         });
 
-    // 2. Малюємо список
+    // 2. Рендер списку серверів
     function renderControls() {
         const list = document.getElementById('controls-list');
         list.innerHTML = '';
@@ -130,19 +160,21 @@
             div.className = 'server-item';
             div.innerHTML = `
                 <div>
-                    <div class="fw-bold">${server.name}</div>
+                    <div class="fw-bold" style="font-size: 1.1rem;">${server.name}</div>
                     <div class="text-muted small">${server.ip}</div>
                 </div>
                 <div>
-                    <span class="dev-label">Дата бази:</span>
+                    <span class="dev-label">ДАТА БАЗИ (ДД.ММ.РРРР):</span>
                     <input type="date" class="date-input" 
+                        lang="uk-UA"
                         value="${formatToInputDate(server.date)}" 
                         onchange="updateDate(${index}, this.value)">
                 </div>
                 <div class="text-center">
-                    <span class="dev-label">Розробка:</span>
+                    <span class="dev-label">РОЗРОБКА:</span>
                     <div class="form-check form-switch d-inline-block">
                         <input class="form-check-input" type="checkbox" role="switch" 
+                            style="width: 2.5em; height: 1.25em; cursor: pointer;"
                             ${server.dev ? 'checked' : ''} 
                             onchange="toggleDev(${index})">
                     </div>
@@ -152,6 +184,7 @@
         });
     }
 
+    // 3. Обробники подій
     function toggleDev(index) {
         currentData[index].dev = !currentData[index].dev;
         updateOutput();
@@ -164,14 +197,18 @@
         }
     }
 
+    // 4. Оновлення вікна з кодом
     function updateOutput() {
         document.getElementById('json-output').textContent = JSON.stringify(currentData, null, 4);
     }
 
+    // 5. Копіювання
     function copyJson() {
         const text = document.getElementById('json-output').textContent;
         navigator.clipboard.writeText(text).then(() => {
-            alert('JSON скопійовано!');
+            const msg = document.getElementById('copy-msg');
+            msg.style.display = 'inline';
+            setTimeout(() => { msg.style.display = 'none'; }, 2000);
         });
     }
 </script>
