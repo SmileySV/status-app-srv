@@ -3,7 +3,7 @@ version: '3.8'
 services:
   status-app:
     image: smileysv/status-app-srv:latest
-    container_name: status-srv
+    container_name: status-app-srv
     restart: always
     ports:
       - "8088:8000"
