@@ -2,14 +2,12 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Встановлюємо необхідні бібліотеки
-RUN pip install --no-cache-dir fastapi uvicorn
+# Спробуємо оновити pip і встановити бібліотеки з довшим таймаутом
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --default-timeout=100 fastapi uvicorn python-multipart
 
-# Копіюємо всі файли проекту
 COPY . .
 
-# Відкриваємо порт
 EXPOSE 8000
 
-# Запускаємо сервер
 CMD ["python", "main.py"]
