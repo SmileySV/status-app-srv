@@ -2,16 +2,14 @@
 FROM nginx:alpine
 
 # Видаляємо дефолтну сторінку nginx
-RUN rm /usr/share/nginx/html/*
+RUN rm -rf /usr/share/nginx/html/*
 
-# Копіюємо нашу сторінку у контейнер
-COPY index.html /usr/share/nginx/html/
+# Копіюємо ВСІ файли з поточної папки (index, setStatus, data.json, images)
+# Це набагато зручніше, ніж прописувати кожен файл окремо
+COPY . /usr/share/nginx/html/
 
-# Копіюємо папку з іконками (вона з'явиться за шляхом /usr/share/nginx/html/images/)
-COPY images/ /usr/share/nginx/html/images/
-
-# Виставляємо порт, який використовує Nginx
+# Виставляємо порт
 EXPOSE 80
 
-# Запускаємо nginx у foreground (щоб контейнер не закрився)
+# Запускаємо nginx
 CMD ["nginx", "-g", "daemon off;"]
